@@ -1,5 +1,6 @@
 from scheduling.misc import *
 from scheduling.TaskEntity import *
+import numpy as np
 
 
 # read the input cluster box data from file
@@ -31,9 +32,11 @@ def process_frame(frame):
     task_batches = []
 
     known_boxes = []
+    avg_box = []
     
     #student's code here
     for cluster in cluster_boxes_data:
+        avg_box.append(box_area(cluster))
         tmp_coord = []
         tmp_coord.append(cluster[0])
         tmp_coord.append(cluster[1])
@@ -55,10 +58,15 @@ def process_frame(frame):
             tmp_coord.append(cluster[4])
             known_boxes.append(tmp_coord)
 
-    for box in known_boxes:
-        task = TaskEntity(frame.path, coord = box[0:4], depth = box[4])
-        task_batch = TaskBatch([task], task.img_width, task.img_height, priority = task.depth) 
+    avg_area = np.mean(avg_box)
+    sd_area = np.std(avg_box)
 
-        task_batches.append(task_batch)
+    for box in known_boxes:
+        if (box_area(box) <= 3*sd_area + avg_area) and (box_area(box) >= avg_area - (3*sd_area)):
+            task = TaskEntity(frame.path, coord = box[0:4], depth = box[4])
+            task_batch = TaskBatch([task], task.img_width, task.img_height, priority = task.depth)
+            task_batches.append(task_batch)
+
+        
     #print(len(task_batches))
     return task_batches
