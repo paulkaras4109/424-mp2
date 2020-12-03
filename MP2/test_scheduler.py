@@ -11,8 +11,10 @@ ground_truth = read_json_file('../dataset/waymo_ground_truth_flat.json')
 history = read_json_file("scheduling_history.json")
 
 # calculate group worst response time from history file
-group_response_time = get_group_worst_response_time(history)
-print(group_response_time)
+group_worst_response_time = get_group_worst_response_time(history)
+group_avg_response_time = get_group_avg_response_time(history)
+print(group_worst_response_time)
+print(group_avg_response_time)
 
 get_statistics(ground_truth, cluster_box_info)
 

@@ -27,7 +27,7 @@ def process_frame(frame):
 
     known_boxes = []
     
-    # student's code here
+    #student's code here
     for cluster in cluster_boxes_data:
         tmp_coord = []
         tmp_coord.append(cluster[0])
@@ -36,7 +36,7 @@ def process_frame(frame):
         tmp_coord.append(cluster[3])
         task_addressed = False
         for box in known_boxes:
-            if (((cluster[1] >= box[1]) and (cluster[1] <= box[3])) or ((cluster[3] >= box[1]) and (cluster[3] <= box[3]))) and (((cluster[1] >= box[1]) and (cluster[1] <= box[3])) or ((cluster[3] >= box[1]) and (cluster[3] <= box[3]))):
+            if (((cluster[1] >= box[1]) and (cluster[1] <= box[3])) or ((cluster[3] >= box[1]) and (cluster[3] <= box[3]))) and (((cluster[0] >= box[0]) and (cluster[0] <= box[2])) or ((cluster[2] >= box[0]) and (cluster[2] <= box[0]))):
                 tmp_box = []
                 tmp_box.append(min(cluster[0], box[0]))
                 tmp_box.append(min(cluster[1], box[1]))
@@ -56,7 +56,6 @@ def process_frame(frame):
 
         task_batches.append(task_batch)
     #print(len(task_batches))
-
     return task_batches
 
     

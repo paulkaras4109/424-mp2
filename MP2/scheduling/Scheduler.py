@@ -19,6 +19,7 @@ class Scheduler:
                 A lower number means higher priority. 
         history: scheduling history. 
         task_finish_count: number of tasks that have finished. 
+        task_batch_finish_count: number of task batches that have finished. 
         task_missed_count: number of tasks that missed deadline.
         scheduled_boxes: cluster boxes scheduled
     """
@@ -38,6 +39,7 @@ class Scheduler:
         self.history = []
         self.scheduled_boxes = {}
         self.task_finish_count = 0
+        self.task_batch_finish_count = 0
         self.task_missed_count = 0
 
 
@@ -66,8 +68,9 @@ class Scheduler:
                 # if the task has finished
                 if top_task_batch.remain_time == 0:
                     task_batch = self.run_queue.get()
-                    self.task_finish_count = self.task_finish_count + 1
-                    task_batch.set_task_order(self.task_finish_count)
+                    self.task_batch_finish_count = self.task_batch_finish_count + 1
+                    self.task_finish_count = self.task_finish_count + task_batch.batch_size
+                    task_batch.set_task_order(self.task_batch_finish_count)
                     task_batch.set_response_time(self.time - task_batch.enqueue_time + 1)
                     for task in task_batch.tasks:
                         if task.response_time > task.deadline:
@@ -213,5 +216,3 @@ class Scheduler:
             cv2.imwrite(task.image_out_path, image)
 
             order = order + 1
-
-
