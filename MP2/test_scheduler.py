@@ -2,7 +2,7 @@ import time
 from scheduling.Scheduler import *
 
 
-scheduler = Scheduler(num_frames = 100)
+scheduler = Scheduler()
 scheduler.run()
 
 

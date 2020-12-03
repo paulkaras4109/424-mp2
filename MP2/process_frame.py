@@ -27,6 +27,13 @@ def process_frame(frame):
         A list of task_batches with each task_batch containing some tasks.
     """
     
+    small_box_dim = 50
+    med_box_dim = 150
+    large_box_dim = 250
+    small_task_set = []
+    med_task_set = []
+    large_task_set = []
+
     cluster_boxes_data = get_cluster_box_info(frame, box_info)
 
     task_batches = []
@@ -36,7 +43,6 @@ def process_frame(frame):
     
     #student's code here
     for cluster in cluster_boxes_data:
-        avg_box.append(box_area(cluster))
         tmp_coord = []
         tmp_coord.append(cluster[0])
         tmp_coord.append(cluster[1])
@@ -58,15 +64,42 @@ def process_frame(frame):
             tmp_coord.append(cluster[4])
             known_boxes.append(tmp_coord)
 
-    avg_area = np.mean(avg_box)
-    sd_area = np.std(avg_box)
-
     for box in known_boxes:
-        if (box_area(box) <= 3*sd_area + avg_area) and (box_area(box) >= avg_area - (3*sd_area)):
+        #print(box)
+        dim = 0
+        l = abs(box[2] - box[0])
+        w = abs(box[3] - box[1])
+        dim = max(l,w)
+        if(dim <= small_box_dim and box[1] + small_box_dim < 1920 and box[0] + small_box_dim < 1280):
+            #print("small")
+            box[3] = box[1] + small_box_dim
+            box[2] = box[0] + small_box_dim
+            task_small = TaskEntity(frame.path, coord = box[0:4], depth = box[4])
+            small_task_set.append(task_small)
+        elif(dim <= med_box_dim and box[1] + med_box_dim < 1920 and box[0] + med_box_dim < 1280):
+            #print("med")
+            box[3] = box[1] + med_box_dim
+            box[2] = box[0] + med_box_dim
+            task_med = TaskEntity(frame.path, coord = box[0:4], depth = box[4])
+            med_task_set.append(task_med)
+        elif(dim <= large_box_dim and box[1] + large_box_dim < 1920 and box[0] + large_box_dim < 1280):
+            #print("large")
+            box[3] = box[1] + large_box_dim
+            box[2] = box[0] + large_box_dim
+            task_large = TaskEntity(frame.path, coord = box[0:4], depth = box[4])
+            large_task_set.append(task_large)
+        else:
+            #print("none")
             task = TaskEntity(frame.path, coord = box[0:4], depth = box[4])
-            task_batch = TaskBatch([task], task.img_width, task.img_height, priority = task.depth)
+            task_batch = TaskBatch([task], task.img_width, task.img_height, priority = 1) 
             task_batches.append(task_batch)
 
-        
+    small_task_batch = TaskBatch(small_task_set, small_box_dim, small_box_dim, priority = 4)
+    med_task_batch = TaskBatch(med_task_set, med_box_dim, med_box_dim, priority = 3)
+    large_task_batch = TaskBatch(large_task_set, large_box_dim, large_box_dim, priority = 2)
+
+    task_batches.append(small_task_batch)
+    task_batches.append(med_task_batch)
+    task_batches.append(large_task_batch)
     #print(len(task_batches))
     return task_batches
