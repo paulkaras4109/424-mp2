@@ -5,6 +5,11 @@ from scheduling.TaskEntity import *
 # read the input cluster box data from file
 box_info = read_json_file('../dataset/depth_clustering_detection_flat.json')
 
+def box_area(cluster):
+    l = abs(cluster[2] - cluster[0])
+    w = abs(cluster[3] - cluster[1])
+    return l * w
+
 
 def process_frame(frame):
     """Process frame for scheduling.
